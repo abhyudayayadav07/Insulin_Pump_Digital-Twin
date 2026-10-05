@@ -1,0 +1,232 @@
+# ============================================================
+# Insulin Digital Twin - Global Configuration
+# ============================================================
+
+project:
+  name: "Insulin_Digital_Twin"
+  version: "0.1.0"
+  random_seed: 42
+
+# ------------------------------------------------------------
+# Directory configuration
+# ------------------------------------------------------------
+
+paths:
+  raw_data: "data/raw"
+  processed_data: "data/processed"
+  results: "data/results"
+  dt1_checkpoints: "data/results/dt1_checkpoints"
+
+# ------------------------------------------------------------
+# Simulator configuration
+# ------------------------------------------------------------
+
+simulator:
+  enabled: true
+  name: "simglucose"
+
+  # Simulation time
+  sample_time_minutes: 5
+  duration_hours: 24
+
+  # Patient/scenario configuration
+  patient_id: null
+  scenario_id: null
+
+  # Physiological signals used by the digital twin
+  signals:
+    glucose: true
+    cgm: true
+    insulin: true
+    meal: true
+
+# ------------------------------------------------------------
+# Controller configuration
+# ------------------------------------------------------------
+
+controller:
+  enabled: true
+  type: "baseline"
+
+# ------------------------------------------------------------
+# Digital Twin 1 - ML/DL glucose prediction
+# ------------------------------------------------------------
+
+dt1:
+  enabled: true
+
+  # Model can be: lstm, gru, transformer
+  model: "lstm"
+
+  # Number of historical timesteps supplied to DT1
+  sequence_length: 12
+
+  # Number of timesteps into the future to predict
+  prediction_horizon: 1
+
+  # Input signals/features
+  features:
+    - "glucose"
+    - "insulin"
+    - "meal"
+
+  target: "glucose"
+
+  # Training configuration
+  training:
+    enabled: true
+    epochs: 20
+    batch_size: 64
+    learning_rate: 0.001
+
+  # Model architecture
+  architecture:
+    hidden_size: 64
+    num_layers: 2
+    dropout: 0.1
+
+  # Runtime device: auto, cpu, cuda
+  device: "auto"
+
+  # Checkpoint generated after training
+  checkpoint: "data/results/dt1_checkpoints/dt1_model.pt"
+
+  # Residual-based anomaly detection
+  residual:
+    enabled: true
+    threshold_method: "percentile"
+    percentile: 99.0
+
+# ------------------------------------------------------------
+# Data processing
+# ------------------------------------------------------------
+
+data:
+  time_column: "time"
+  glucose_column: "glucose"
+  cgm_column: "cgm"
+  insulin_column: "insulin"
+  meal_column: "meal"
+
+  # Dataset split
+  split:
+    train: 0.70
+    validation: 0.15
+    test: 0.15
+
+  # Prevent future information from entering model features
+  causal_features_only: true
+
+# ------------------------------------------------------------
+# Attack configuration
+# ------------------------------------------------------------
+
+attacks:
+  enabled: false
+
+  sensor_attack:
+    enabled: false
+    type: null
+
+  controller_attack:
+    enabled: false
+    type: null
+
+  pump_attack:
+    enabled: false
+    type: null
+
+# ------------------------------------------------------------
+# DT2 - Hazard Digital Twin
+# ------------------------------------------------------------
+
+dt2:
+  enabled: false
+
+  hazard_model: "hazard_function"
+
+  hazard_probability:
+    enabled: true
+
+  trajectory:
+    enabled: true
+
+  stpa:
+    enabled: true
+
+  risk:
+    enabled: true
+
+# ------------------------------------------------------------
+# Decision Engine
+# ------------------------------------------------------------
+
+decision_engine:
+  enabled: false
+
+  evidence_fusion:
+    enabled: true
+
+  decision:
+    enabled: true
+
+  safety_response:
+    enabled: true
+
+# ------------------------------------------------------------
+# Evaluation
+# ------------------------------------------------------------
+
+evaluation:
+  enabled: true
+
+  dt1:
+    metrics:
+      - "mae"
+      - "rmse"
+
+  dt2:
+    metrics:
+      - "precision"
+      - "recall"
+      - "f1"
+      - "auc"
+
+  save_predictions: true
+  save_residuals: true
+  save_plots: true
+
+# ------------------------------------------------------------
+# NVIDIA Omniverse / Isaac Sim
+# ------------------------------------------------------------
+
+omniverse:
+  enabled: false
+
+  # Communication layer to be implemented later
+  bridge:
+    enabled: false
+    protocol: "websocket"
+    host: "127.0.0.1"
+    port: 8765
+
+  # Runtime visualization
+  visualization:
+    patient: true
+    cgm: true
+    insulin_pump: true
+    glucose_trajectory: true
+    dt1_prediction: true
+    dt2_hazard: true
+    residual: true
+    attack_status: true
+    decision_status: true
+
+# ------------------------------------------------------------
+# Logging
+# ------------------------------------------------------------
+
+logging:
+  level: "INFO"
+  save_logs: true
+  log_directory: "data/results/logs"
