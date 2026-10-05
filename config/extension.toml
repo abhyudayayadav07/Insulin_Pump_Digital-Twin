@@ -1,0 +1,18 @@
+[package]
+version = "0.1.0"
+title = "IITP Digital Twin WebSocket Bridge"
+description = "WebSocket communication bridge between the IIT Patna insulin-pump digital twin and NVIDIA Omniverse."
+authors = ["IIT Patna Digital Twin Team"]
+category = "Simulation"
+keywords = ["digital twin", "insulin pump", "WebSocket", "healthcare", "simulation"]
+readme = "README.md"
+writeTarget.kit = true
+support_level = "Sample"
+
+[[python.module]]
+name = "iitp.digital_twin.websocket"
+
+[dependencies]
+"omni.kit.app" = {}
+"omni.usd" = {}
+"omni.ui" = {}
